@@ -1,0 +1,48 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+class Item {		
+	double sepalLength;
+	double sepalWidth;
+	double petalLength;
+	double petalWidth;
+	String className;
+	
+	 Item(double sepalLength, double sepalWidth,
+			double petalLength, double petalWidth, String className) {
+			this.sepalLength = sepalLength;
+			this.sepalWidth = sepalWidth;
+			this.petalLength = petalLength;
+			this.petalWidth = petalWidth;
+			this.className = className;
+	}
+}
+
+public class Solution {
+	
+	public static void main(String[] args) throws IOException {
+		ArrayList<Item> dataSet = parseDataFile();
+		int a = 3;
+	}
+	
+	public static ArrayList<Item> parseDataFile() throws IOException {
+		ArrayList<Item> result = new ArrayList<Item>();
+		
+	    FileReader in = new FileReader("iris-data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    result.add(new Item(Double.parseDouble(parsed[0]),
+		    		Double.parseDouble(parsed[1]), Double.parseDouble(parsed[2]), 
+		    		Double.parseDouble(parsed[3]), parsed[4]));
+		}
+		
+		return result;
+	}
+}

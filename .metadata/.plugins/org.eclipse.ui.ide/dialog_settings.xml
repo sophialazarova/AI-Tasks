@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="ExternalProjectImportWizard">
+		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
+		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
+		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
+		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/Users/sophia/AI-Tasks/SlidingBlocksFrogs"/>
+			<item value="/Users/sophia/AI-Tasks/SlidingBlocks2"/>
+			<item value="/Users/sophia/AI-Tasks/SlidingBlocks"/>
+			<item value="/Users/sophia/AI-Tasks/Knapsack"/>
+			<item value="/Users/sophia/AI-Tasks/TicTacToe"/>
+			<item value="/Users/sophia/AI-Tasks/NQuenss"/>
+			<item value="/Users/sophia/AI-Tasks/FrogsProblem"/>
+		</list>
+		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
+			<item value=""/>
+		</list>
+	</section>
+</section>

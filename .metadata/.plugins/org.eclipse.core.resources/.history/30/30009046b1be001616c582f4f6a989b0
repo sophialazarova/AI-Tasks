@@ -1,0 +1,75 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+class Item {		
+	double sepalLength;
+	double sepalWidth;
+	double petalLength;
+	double petalWidth;
+	String className;
+	
+	 Item(double sepalLength, double sepalWidth,
+			double petalLength, double petalWidth, String className) {
+			this.sepalLength = sepalLength;
+			this.sepalWidth = sepalWidth;
+			this.petalLength = petalLength;
+			this.petalWidth = petalWidth;
+			this.className = className;
+	}
+}
+
+public class Solution {
+	
+	public static void main(String[] args) throws IOException {
+		ArrayList<Item> dataSet = parseDataFile();
+		ArrayList<Item> testData = extractTestDataSet(dataSet);
+		int a = 3;
+		
+	}
+	
+	public static ArrayList<Item> parseDataFile() throws IOException {
+		ArrayList<Item> result = new ArrayList<Item>();
+		
+	    FileReader in = new FileReader("iris-data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    result.add(new Item(Double.parseDouble(parsed[0]),
+		    		Double.parseDouble(parsed[1]), Double.parseDouble(parsed[2]), 
+		    		Double.parseDouble(parsed[3]), parsed[4]));
+		}
+		
+		return result;
+	}
+	
+	public static ArrayList<Item> extractTestDataSet(ArrayList<Item> originalSet) {
+		ArrayList<Item> result = new ArrayList<Item>();
+		Random randomGenerator = new Random();
+		for (int i = 0; i < 20; i++){
+			int index = randomGenerator.nextInt(originalSet.size());
+			result.add(originalSet.get(index));
+			originalSet.remove(index);
+		}
+		
+		return result;
+	}
+	
+	public static double calculateDistance(Item first, Item second) {
+		double sepalWidth = Math.pow((first.sepalWidth - second.sepalWidth), 2);
+		double sepalLength = Math.pow((first.sepalLength - second.sepalLength), 2);
+		double petalWidth = Math.pow((first.petalWidth - second.petalWidth), 2);
+		double petalLength = Math.pow((first.petalLength - second.petalLength), 2);
+		
+		double sum = sepalWidth + sepalLength + petalWidth + petalLength;
+		return Math.sqrt(sum);
+	}
+	
+	public static List<I>
+}

@@ -1,0 +1,35 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Solution {
+
+	class Item {
+		double sepalLength;
+		double sepalWidth;
+		double petalLength;
+		double petalWidth;
+		String className;
+	}
+	
+	public static void Main(String[] args) {
+		
+	}
+	
+	public static List<Item> parseDataFile() throws IOException {
+		List<Item> result = new ArrayList<Item>();
+		
+	    FileReader in = new FileReader("iris-data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    System.out.println(line);
+		}
+		
+		return result;
+	}
+}
