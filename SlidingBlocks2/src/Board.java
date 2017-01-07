@@ -18,7 +18,8 @@ public class Board {
         return N;
     }
  
-    public int manhattan() {
+    //manhattan
+    public int getDistance() {
         int distance = 0;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -42,21 +43,7 @@ public class Board {
         }
         return true;
     }
- 
-    public Board twin() {
-    // a board that is obtained by exchanging two adjacent blocks in the same row
-        Board newBoard = new Board(blocks);
-        for (int i = N - 1; i >= 0; i--) {
-            for (int j = N - 2; j >= 0; j--) {
-                if (newBoard.blocks[i][j] != 0 && newBoard.blocks[i][j + 1] != 0) {
-                    newBoard.exch(i, j, i, j + 1);
-                    return newBoard;
-                }
-            }
-        }
-        return null;
-    }
- 
+
     public boolean equals(Object y) {
         if (y == this) return true;
         if (y == null) return false;
