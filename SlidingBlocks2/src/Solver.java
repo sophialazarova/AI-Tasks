@@ -17,7 +17,7 @@ public class Solver {
             this.board = board;
             this.moves = moves;
             this.prev = prev;
-            dist = board.manhattan();
+            dist = board.getDistance();
         }
  
         @Override
@@ -31,7 +31,6 @@ public class Solver {
             throw new NullPointerException();
         }
         pq.add(new Node(initial, 0, null)); 
-      //  pq.add(new Node(initial.twin(), 0, null));
         
         findBestNode(initial);
     }
