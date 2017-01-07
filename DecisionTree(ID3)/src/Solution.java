@@ -1,0 +1,253 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+public class Solution {
+	public static ArrayList<Feature> fullFeatureSet;
+
+	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		ArrayList<Entry> dataSet = parseDataFile();
+		ArrayList<Entry> testData = extractTestDataSet(dataSet);
+		fullFeatureSet = createFeatureSet();
+		ArrayList<Feature> limitedFeatureSet = createFeatureSet();
+		limitedFeatureSet.remove(limitedFeatureSet.size()-1);
+		Node nd = new Node();
+		nd.branches.put("asd", new Node());
+		Node tree = id3(testData, fullFeatureSet.get(fullFeatureSet.size()-1), limitedFeatureSet);
+		System.out.println("s");
+
+	}
+	
+	public static ArrayList<Entry> parseDataFile() throws IOException {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		
+	    FileReader in = new FileReader("data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    
+		    Entry current = new Entry(parsed[0],
+		    		parsed[1], 
+		    		parsed[2],  
+		    		parsed[3], 
+		    		parsed[4],
+		    		parsed[5], 
+		    		parsed[6],
+		    		parsed[7],
+		    		parsed[8], 
+		    		parsed[9]);
+		    
+		    result.add(current);
+
+		}
+		
+		return result;
+	}
+	
+	public static ArrayList<Entry> extractTestDataSet(ArrayList<Entry> originalSet) {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		Random randomGenerator = new Random();
+		for (int i = 0; i < 100; i++){
+			int index = randomGenerator.nextInt(originalSet.size());
+			result.add(originalSet.get(index));
+			originalSet.remove(index);
+		}
+		
+		return result;
+	}
+	
+	public static ArrayList<Feature> createFeatureSet() throws IOException {ArrayList<Entry> result = new ArrayList<Entry>();
+	
+	    FileReader in = new FileReader("features.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		ArrayList<Feature> features = new ArrayList<Feature>();
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    ArrayList<String> values = new ArrayList<String>();
+		    for(int i = 1; i < parsed.length; i++){
+		    	values.add(parsed[i]);
+		    }
+		    features.add(new Feature(parsed[0],values));
+		    
+		}
+		
+		return features;
+	}
+	
+	public static Node id3(ArrayList<Entry> samples, Feature targetFeature, ArrayList<Feature> features) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Node root = new Node();
+		root.samples = samples;
+//		if (checkIfAllSamplesHasTargetCategory(fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(1), samples)) {
+//			root.feature = targetFeature;
+//			root.value = fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(1);
+//			return root;
+//		}
+//		else if (checkIfAllSamplesHasTargetCategory(fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0), samples)){
+//			root.feature = targetFeature;
+//			root.value = fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0);
+//			return root;
+//		}
+//		else if (features.size() == 0) {
+//			root.feature = targetFeature;
+//			root.value = getMostCommonCategory(samples);
+//			return root;
+//		}
+		if (root.getIsLeaf()){
+			return root;
+		}
+		else {
+			double entropy = calculateEntropy(samples);
+			Feature best = findBestFeature(entropy, samples, features);
+			root.feature = best;
+			for (String value : best.possibleValues){
+				ArrayList<Entry> includedSamples = getSamplesWithValueForFeatue(best,value, samples);
+				if (includedSamples.size() == 0){
+					root.feature = best;
+					root.value = getMostCommonCategory(samples);
+					return root;
+				}
+				else {
+					ArrayList<Feature> rest = new ArrayList<Feature>(features);
+					rest.remove(best);
+					root.branches.put(value, id3(includedSamples, targetFeature, rest));
+				}
+				
+			}
+			
+			return root;
+		}
+	}
+	
+	public static ArrayList<Entry> getSamplesWithValueForFeatue(Feature feature, String value, ArrayList<Entry> samples) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		for(Entry sample : samples){
+			Class<?> c = sample.getClass();
+			Field f = c.getDeclaredField(feature.name);
+			f.setAccessible(true);
+			if (f.get(sample).equals(value)) {
+				result.add(sample);
+			}
+		}
+		
+		return result;
+	}
+	
+	public static boolean checkIfAllSamplesHasTargetCategory(String category, ArrayList<Entry> samples) {
+		int count = 0;
+		for (int i = 0; i < samples.size(); i++) {
+			if (samples.get(i).category.equals(category)) {
+				count++;
+			}
+		}
+		
+		if (count == samples.size()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static String getMostCommonCategory(ArrayList<Entry> samples) {
+		int noRecEventsCount = 0;
+		int recEventsCount = 0;
+		
+		for (int i = 0; i < samples.size(); i++) {
+			if (samples.get(i).category.equals(fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0))) {
+				noRecEventsCount++;
+			}
+			else {
+				recEventsCount++;
+			}
+		}
+		
+		return noRecEventsCount>recEventsCount ? fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0) : fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(1);
+	}
+	
+	public static double calculateEntropy(ArrayList<Entry> samples) {
+		double noRecEventsCount = 0;
+		double recEventsCount = 0;
+		
+		for(Entry e: samples)
+		{
+			if(e.category.equals(fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0)))
+				noRecEventsCount++;
+			else
+				recEventsCount++;
+		}
+		
+		double posTerm = noRecEventsCount/samples.size();
+		double negTerm = recEventsCount/samples.size();
+		
+		double totalEntropy = -posTerm*(Math.log(posTerm)/Math.log(2)) - negTerm*(Math.log(negTerm)/Math.log(2));
+		
+		return totalEntropy;
+	}
+	
+	public static Feature findBestFeature(double totalEntropy, ArrayList<Entry> samples, ArrayList<Feature> features) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
+		double bestGain = Double.MIN_VALUE;
+		double tempGain = 0.0;
+		Feature bestFeature = null;
+		
+		for (Feature feature: features) {
+			tempGain = calculateGain(totalEntropy, samples, feature);
+			if (tempGain > bestGain) {
+				bestGain = tempGain;
+				bestFeature = feature;
+			}
+		}
+		return bestFeature;
+	}
+	
+	public static double calculateGain(double totalEntropy, ArrayList<Entry> samples, Feature targetFeature) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
+		double entropy = 0.0;
+		double nonRec = 0;
+		double rec = 0;
+		double numOfSamples = 0;
+		
+		for(String value : targetFeature.possibleValues) {
+			
+			for(Entry sample : samples) {
+				Class<?> c = sample.getClass();
+				Field f = c.getDeclaredField(targetFeature.name);
+				f.setAccessible(true);
+				if (f.get(sample).equals(value)) {
+					numOfSamples++;
+					String d = fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0);
+					if(sample.category.equals(fullFeatureSet.get(fullFeatureSet.size()-1).possibleValues.get(0))) {
+						nonRec++;
+					}
+					else {
+						rec++;
+					}
+				}
+				
+			}
+			
+			double nonRecFraction = nonRec/numOfSamples;
+			double recFraction = rec/numOfSamples;
+			double samplesFraction = numOfSamples/samples.size();
+			
+			//Sum the entropies
+			if (nonRecFraction != 0 && recFraction != 0 && numOfSamples !=0) {
+				entropy += samplesFraction * (-nonRecFraction*(Math.log(nonRecFraction)/Math.log(2)) - recFraction*(Math.log(recFraction)/Math.log(2)));	
+			}
+			
+			nonRec = 0;
+			rec = 0;
+			numOfSamples = 0;
+		}
+		
+		return totalEntropy - entropy;
+	}
+
+}

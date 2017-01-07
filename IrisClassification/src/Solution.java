@@ -105,6 +105,8 @@ public class Solution {
 	}
 	
 	public static String getMostVotedClass(List<Item> neighbours) {
+		ArrayList<Item> items = new ArrayList<Item>();
+		
 		TreeMap<Integer, String> res = new TreeMap<Integer, String>();
 		int irisCentosa = 0;
 		int irisVersicolour = 0;
@@ -121,12 +123,13 @@ public class Solution {
 			else {
 				irisVirginica++;
 			}
+			
 		}
 		
 		res.put(irisCentosa, "Iris-setosa");
 		res.put(irisVersicolour, "Iris-versicolor");
 		res.put(irisVirginica, "Iris-virginica");
 		List<String> sorted = new ArrayList<String>(res.values());
-		return sorted.get(1);
+		return sorted.get(sorted.size()-1);
 	}
 }
