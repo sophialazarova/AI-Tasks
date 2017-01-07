@@ -1,0 +1,54 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class Solution {
+
+	public static void main(String[] args) throws IOException {
+		ArrayList<Entry> fullDataSet = parseDataFile();
+
+	}
+	
+	public static ArrayList<Entry> parseDataFile() throws IOException {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		
+	    FileReader in = new FileReader("data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    boolean nodeCaps = parsed[4].equals("'yes'") ? true:false;
+		    boolean irradiate = parsed[8].equals("'yes'") ? true:false;
+		    int degMalig;
+		    if (parsed[5].equals("'1'")) {
+		    	degMalig = 1;
+		    }
+		    else if (parsed[5].equals("'2'")) {
+		    	degMalig = 2;
+		    }
+		    else {
+		    	degMalig = 3;
+		    }
+		    
+		    Entry current = new Entry(parsed[0].replace('\'', Character.MIN_VALUE),
+		    		parsed[1].replace('\'', Character.MIN_VALUE), 
+		    		parsed[2].replace('\'', Character.MIN_VALUE),  
+		    		parsed[3].replace('\'', Character.MIN_VALUE), 
+		    		nodeCaps,
+		    		degMalig, 
+		    		parsed[6].replace('\'', Character.MIN_VALUE),
+		    		parsed[7].replace('\'', Character.MIN_VALUE),
+		    		irradiate, 
+		    		parsed[9].replace('\'', Character.MIN_VALUE));
+		    
+		    result.add(current);
+		    
+
+		}
+		
+		return result;
+	}
+
+}

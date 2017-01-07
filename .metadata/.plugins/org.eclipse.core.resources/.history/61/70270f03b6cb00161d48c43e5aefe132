@@ -1,0 +1,12 @@
+public class Entry {
+	public String ageRange;
+	public String menopauseValue;
+	public String tumorSizeRange;
+	public String invNodesRange;
+	public boolean nodeCaps;
+	public int degMalig;
+	public String breast;
+	public String breastQuad;
+	public boolean irradiate;
+	public String category;
+}

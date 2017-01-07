@@ -1,0 +1,19 @@
+import java.util.HashMap;
+
+public class Node {
+	public Feature feature;
+	public Object value;
+	public boolean isLeaf;
+	public HashMap<Object, Node> branches;
+	
+	public Node(Object value, Feature feature, HashMap<Object, Node> branches) {
+		this.feature = feature;
+		this.branches = branches;
+		this.value = value;
+	}
+	
+	public Node(){
+		this.feature = null;
+		this.branches = new HashMap<Object, Node>();
+	}
+}

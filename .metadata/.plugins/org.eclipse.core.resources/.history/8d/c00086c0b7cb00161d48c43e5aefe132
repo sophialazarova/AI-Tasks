@@ -1,0 +1,39 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class Solution {
+
+	public static void main(String[] args) throws IOException {
+		ArrayList<Entry> fullDataSet = parseDataFile();
+
+	}
+	
+	public static ArrayList<Entry> parseDataFile() throws IOException {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		
+	    FileReader in = new FileReader("data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    boolean nodeCaps = parsed[4] == "'yes'" ? true:false;
+		    boolean irradiate = parsed[8] == "'yes'" ? true:false;
+		    String degMaligstr = parsed[5].replace('\'', Character.MIN_VALUE);
+		    int val = Integer.parseInt(degMaligstr);
+		    
+		    Entry current = new Entry(parsed[0].replace('\'', Character.MIN_VALUE), parsed[1].replace('\'', Character.MIN_VALUE), 
+		    		parsed[2].replace('\'', Character.MIN_VALUE),  parsed[3].replace('\'', Character.MIN_VALUE), nodeCaps,
+		    		val, parsed[6].replace('\'', Character.MIN_VALUE),
+		    		parsed[7].replace('\'', Character.MIN_VALUE),irradiate, parsed[9].replace('\'', Character.MIN_VALUE));
+		    result.add(current);
+		    
+
+		}
+		
+		return result;
+	}
+
+}

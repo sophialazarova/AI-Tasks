@@ -1,0 +1,220 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Frogs {
+	public static void main(String[] args) {
+	    System.out.print("Enter number of frogs (on each side): ");
+	    Scanner input = new Scanner(System.in);
+	    int frogNumber = input.nextInt();
+	    List<Integer> state =buildInitialState(frogNumber);
+        DFS(state, frogNumber);
+	}
+	
+    private static List<Integer> buildInitialState(int numberOfFrogs) {
+        List<Integer> state = new ArrayList<>();
+        for (int i = 0; i < numberOfFrogs * 2 + 1; i++) {
+            if (i < numberOfFrogs)
+                state.add(-1);
+            else if (i == numberOfFrogs)
+                state.add(0);
+            else state.add(1);
+        }
+        return state;
+    }
+
+    private static boolean DFS(List<Integer> state, int positionOfZero) {
+        if (isGoal(state, positionOfZero)) {
+            return true;
+        } else {
+            for (List<Integer> nextState : getStates(state, positionOfZero)) {
+                if (DFS(nextState, nextState.indexOf(0))) {
+                    printState(state);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void printState(List<Integer> state) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Integer integer : state) {
+            if (integer == -1)
+                stringBuilder.append('<');
+            else if (integer == 1)
+                stringBuilder.append('>');
+            else stringBuilder.append('_');
+        }
+        System.out.println(stringBuilder.toString());
+    }
+
+    private static boolean isGoal(List<Integer> state, int positionOfZero) {
+        if (positionOfZero != (state.size() - 1) / 2)
+            return false;
+        for (int i = 0; i < state.size(); i++) {
+            if (i < positionOfZero) {
+                if (state.get(i) == -1)
+                    return false;
+            } else if (state.get(i) == 1)
+                return false;
+        }
+        printState(state);
+        return true;
+    }
+
+    private static List<List<Integer>> getStates(List<Integer> state, int positionOfZero) {
+        List<List<Integer>> possibleStates = new ArrayList<>();
+        int newPositionOfZero = positionOfZero - 1;
+        if (newPositionOfZero > 0) {
+            if (state.get(newPositionOfZero) < state.get(positionOfZero)) {
+                possibleStates.add(swapPlaces(state, positionOfZero, newPositionOfZero, -1));
+            }
+        }
+        newPositionOfZero = positionOfZero - 2;
+        if (newPositionOfZero >= 0) {
+            if (state.get(newPositionOfZero) < state.get(positionOfZero)) {
+                possibleStates.add(swapPlaces(state, positionOfZero, newPositionOfZero, -1));
+            }
+        }
+        newPositionOfZero = positionOfZero + 1;
+        if (newPositionOfZero < state.size())
+            if (state.get(newPositionOfZero) > state.get(positionOfZero)) {
+                possibleStates.add(swapPlaces(state, positionOfZero, newPositionOfZero, 1));
+
+            }
+
+        newPositionOfZero = positionOfZero + 2;
+        if (newPositionOfZero < state.size())
+            if (state.get(newPositionOfZero) > state.get(positionOfZero)) {
+                possibleStates.add(swapPlaces(state, positionOfZero, newPositionOfZero, 1));
+            }
+        return possibleStates;
+    }
+
+    private static List<Integer> swapPlaces(List<Integer> state, int positionOfZero, int newPositionOfZero, int swapNumber) {
+        ArrayList<Integer> newState = new ArrayList<>(state);
+        newState.set(newPositionOfZero, 0);
+        newState.set(positionOfZero, swapNumber);
+        return newState;
+    }
+}
+
+//import java.util.ArrayList;
+//import java.util.Arrays;
+//import java.util.Scanner;
+//import java.util.Stack;
+//
+//public class solution {
+//
+//	public static void main(String[] args) {
+//	    System.out.print("Enter number of frogs (on each side): ");
+//	    Scanner input = new Scanner(System.in);
+//	    int frogNumber = input.nextInt();
+//	    char[] root = new char[2*frogNumber + 1];
+//	    char[] solution = new char[2*frogNumber + 1];
+//	    
+//	    initializeBoards(solution, root, frogNumber);
+//	    
+//	    Stack<char[]> stack = new Stack<char[]>();
+//	    ArrayList<char[]> visitedNodes = new ArrayList<char[]>();
+//	    stack.push(root.clone());
+//	
+//	    do{
+//	        int i0 = findEmptyField(root);
+//	        if (i0 > 0 && root[i0-1] == '>' && (!checkIfVisited(swap(root.clone(), i0-1, i0), visitedNodes))){
+//	        	swap(root, i0-1, i0);
+//	        	stack.push(root.clone());
+//		        visitedNodes.add(root.clone());    
+//		        continue;
+//	        }
+//	        
+//	        else if ( i0 < root.length-1 && root[i0+1] == '<' && (!checkIfVisited(swap(root.clone(), i0+1, i0), visitedNodes))){
+//	        	swap(root, i0+1, i0);
+//	        	stack.push(root.clone());
+//		        visitedNodes.add(root.clone());    
+//		        continue;
+//	        }
+//	        else if (i0 <= root.length-3 && root[i0+2] == '<' && root[i0+1] == '>' && (!checkIfVisited(swap(root.clone(), i0+2, i0), visitedNodes))){
+//	        	swap(root, i0+2, i0);
+//	        	stack.push(root.clone());
+//		        visitedNodes.add(root.clone());    
+//		        continue;
+//	        }
+//	        
+//	        else if (i0 > 1 && root[i0-2] == '>' && root[i0-1] == '<' && (!checkIfVisited(swap(root.clone(), i0-2, i0), visitedNodes))){
+//	        	swap(root, i0-2, i0);
+//	        	stack.push(root.clone());
+//		        visitedNodes.add(root.clone());    
+//		        continue;
+//	        }
+//	        
+//	        stack.pop();
+//	        root=(char[]) stack.peek();
+//	        root = root.clone();
+//	    }
+//	    while(!Arrays.equals(root, solution));
+//	    
+//	    printSolution(stack);
+//	  
+//	}
+//	
+//	
+//	public static void initializeBoards(char[] solution, char[] root, int numberOfFrogs) {
+//		for (int i = 0; i < numberOfFrogs; i++){
+//	          root[i] = '>';  
+//	          solution[i]='<';
+//	          
+//	          root[(2*numberOfFrogs)-i] = '<';
+//	          solution[(2*numberOfFrogs)-i]='>';
+//	    }
+//		
+//		root[(root.length-1)/2] = '_';
+//		solution[(root.length-1)/2] = '_';
+//	}
+//
+//	public static int findEmptyField(char arr[]){
+//	    int index = 0;
+//	    for (int i=0; i <arr.length; i++){
+//	        if (arr[i]=='_'){
+//	        	index = i;
+//	        }
+//	    }
+//	    return index;
+//	}
+//	
+//	public static char[] swap(char[] arr, int ind1, int ind2){
+//	    char temp = arr[ind1];
+//	    arr[ind1] = arr[ind2];
+//	    arr[ind2] = temp;
+//	    return arr;
+//	}
+//	
+//	public static boolean checkIfVisited(char[] target, ArrayList<char[]> visitedList){
+//	    if(visitedList.isEmpty()){
+//	    	return false;
+//	    }
+//	    
+//	    for (Object currentItem : visitedList) {
+//	        if (Arrays.equals(target, (char[]) currentItem)) {
+//	            return true;
+//	        }
+//	    }
+//	    return false;
+//	}
+//	
+//	public static void printSolution(Stack<char[]> solution) {
+//	    Stack<char[]> solutionPath = new Stack<char[]>();
+//	    while(!solution.empty()){
+//	    	solutionPath.push(solution.pop());
+//	    }
+//	
+//	    while(!solutionPath.empty()){
+//	        char[] current = (char[]) solutionPath.pop();
+//	        for (int i = 0; i < current.length; i++){
+//	            System.out.print(current[i]);
+//	        }
+//	        System.out.println();
+//	    }  
+//	}
+//}

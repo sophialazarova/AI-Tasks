@@ -1,0 +1,194 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+public class Solution {
+
+	public static void main(String[] args) throws IOException {
+		ArrayList<Entry> dataSet = parseDataFile();
+		ArrayList<Entry> testData = extractTestDataSet(dataSet);
+		id3(testData, new Feature("category", Arrays.asList("no-recurrence-events","recurrence-events")), createFeatureSet());
+
+	}
+	
+	public static ArrayList<Entry> parseDataFile() throws IOException {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		
+	    FileReader in = new FileReader("data.txt");
+	    BufferedReader br = new BufferedReader(in);
+	    
+		String line;
+		while ((line = br.readLine()) != null) {
+		    String[] parsed = line.split(",");
+		    boolean nodeCaps = parsed[4].equals("'yes'") ? true:false;
+		    boolean irradiate = parsed[8].equals("'yes'") ? true:false;
+		    int degMalig;
+		    if (parsed[5].equals("'1'")) {
+		    	degMalig = 1;
+		    }
+		    else if (parsed[5].equals("'2'")) {
+		    	degMalig = 2;
+		    }
+		    else {
+		    	degMalig = 3;
+		    }
+		    
+		    Entry current = new Entry(parsed[0].replace('\'', Character.MIN_VALUE),
+		    		parsed[1].replace('\'', Character.MIN_VALUE), 
+		    		parsed[2].replace('\'', Character.MIN_VALUE),  
+		    		parsed[3].replace('\'', Character.MIN_VALUE), 
+		    		nodeCaps,
+		    		degMalig, 
+		    		parsed[6].replace('\'', Character.MIN_VALUE),
+		    		parsed[7].replace('\'', Character.MIN_VALUE),
+		    		irradiate, 
+		    		parsed[9].replace('\'', Character.MIN_VALUE));
+		    
+		    result.add(current);
+		    
+
+		}
+		
+		return result;
+	}
+	
+	public static ArrayList<Entry> extractTestDataSet(ArrayList<Entry> originalSet) {
+		ArrayList<Entry> result = new ArrayList<Entry>();
+		Random randomGenerator = new Random();
+		for (int i = 0; i < 40; i++){
+			int index = randomGenerator.nextInt(originalSet.size());
+			result.add(originalSet.get(index));
+			originalSet.remove(index);
+		}
+		
+		return result;
+	}
+	
+	public static ArrayList<Feature> createFeatureSet() {
+		ArrayList<Feature> features = new ArrayList<Feature>();
+		features.add(new Feature("ageRange", Arrays.asList("10-19","20-29","30-39","40-49","50-59","60-69","70-79","80-89","90-99")));
+		features.add(new Feature("menopauseValue", Arrays.asList("lt40","ge40","premeno")));
+		features.add(new Feature("tumorSizeRange", Arrays.asList("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59")));
+		features.add(new Feature("invNodesRange", Arrays.asList("0-2","3-5","6-8","9-11","12-14","15-17","18-20","21-23","24-26","27-29","30-32","33-35","36-39")));
+		features.add(new Feature("nodeCaps", Arrays.asList("true","false")));
+		features.add(new Feature("degMalig", Arrays.asList(1,2,3)));
+		features.add(new Feature("breast", Arrays.asList("left", "right")));
+		features.add(new Feature("breastQuad", Arrays.asList("left_up","left_low","right_up","right_low","central")));
+		features.add(new Feature("irradiate", Arrays.asList("true", "false")));
+		features.add(new Feature("category", Arrays.asList("no-recurrence-events","recurrence-events")));
+		return features;
+	}
+	
+	public static Node id3(ArrayList<Entry> samples, Feature targetFeature, ArrayList<Feature> features) {
+		Node root = new Node();
+		if (checkIfAllSamplesHasTargetCategory("recurrence-events", samples)) {
+			root.feature = targetFeature;
+			root.value = "recurrence-events";
+			return root;
+		}
+		else if (checkIfAllSamplesHasTargetCategory("no-recurrence-events", samples)){
+			root.feature = targetFeature;
+			root.value = "no-recurrence-events";
+			return root;
+		}
+		else if (features.size() == 0) {
+			root.feature = targetFeature;
+			root.value = getMostCommonCategory(samples);
+			return root;
+		}
+		else {
+			double entropy = calculateEntropy(samples);
+			Feature best = findBestFeature(entropy, samples, targetFeature, features);
+			return root;
+		}
+	}
+	
+	public static boolean checkIfAllSamplesHasTargetCategory(String category, ArrayList<Entry> samples) {
+		int count = 0;
+		for (int i = 0; i < samples.size(); i++) {
+			if (samples.get(i).category.equals(category)) {
+				count++;
+			}
+		}
+		
+		if (count == samples.size()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static String getMostCommonCategory(ArrayList<Entry> samples) {
+		int noRecEventsCount = 0;
+		int recEventsCount = 0;
+		
+		for (int i = 0; i < samples.size(); i++) {
+			if (samples.get(i).category.equals("no-recurrence-events")) {
+				noRecEventsCount++;
+			}
+			else {
+				recEventsCount++;
+			}
+		}
+		
+		return noRecEventsCount>recEventsCount ? "no-recurrence-events" : "recurrence-events";
+	}
+	
+	public static double calculateEntropy(ArrayList<Entry> samples) {
+		double noRecEventsCount = 0;
+		double recEventsCount = 0;
+		
+		for(Entry e: samples)
+		{
+			if(e.category.equals("no-recurrence-events"))
+				noRecEventsCount++;
+			else
+				recEventsCount++;
+		}
+		
+		double posTerm = noRecEventsCount/samples.size();
+		double negTerm = recEventsCount/samples.size();
+		
+		double totalEntropy = -posTerm*(Math.log(posTerm)/Math.log(2)) - negTerm*(Math.log(negTerm)/Math.log(2));
+		
+		return totalEntropy;
+	}
+	
+	public static Feature findBestFeature(double totalEntropy, ArrayList<Entry> samples, ArrayList<Feature> features){
+		return null;
+	}
+	
+	public static double calculateGain(double totalEntropy, ArrayList<Entry> samples, Feature targetFeature){
+		double entropy = 0.0;
+		
+		for(Object value : targetFeature.possibleValues) {
+			double presented = 0;
+			double notPresented = 0;
+			double numOfSamples = 0;
+			
+			for(Entry sample : samples) {
+				if (sample.category.equals(value)) {
+					presented++;
+				}
+				else {
+					notPresented++;
+				}
+				
+				numOfSamples++;
+			}
+			
+			double presentedFraction = presented/numOfSamples;
+			double notPresentedFraction = notPresented/numOfSamples;
+			
+			//Sum the entropies
+			entropy += (-1) * presentedFraction * (presentedFraction*(Math.log(presentedFraction)/Math.log(2)) - notPresentedFraction*(Math.log(notPresentedFraction)/Math.log(2)));
+		}
+		
+		return totalEntropy - entropy;
+	}
+
+}
