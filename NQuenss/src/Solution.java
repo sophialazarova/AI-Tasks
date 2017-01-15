@@ -5,122 +5,112 @@ import java.util.Scanner;
 
 public class Solution {
 
-	private static class Board {
-		int board[];
-		Random random = new Random();
-		int n;
-		
-		Board(int n) {
-			board = new int[n];
-			this.n = n;
-		}
-		
-		void initializeBoard() {			
-			for (int i = 0; i < n; i++) {
-				board[i] = i;
+    private static class Board {
+    	
+        Random random = new Random();
+        int[] rows;
+
+        Board(int n) {
+            rows = new int[n];
+            fillBoardInitially();
+        }
+
+        void fillBoardInitially() {
+            for (int i = 0, n = rows.length; i < n; i++) {
+                rows[i] = i;
             }
-            for (int i = 0, n = board.length; i < n; i++) {
+            for (int i = 0, n = rows.length; i < n; i++) {
                 int j = random.nextInt(n);
-                int rowToSwap = board[i];
-                board[i] = board[j];
-                board[j] = rowToSwap;
+                int rowToSwap = rows[i];
+                rows[i] = rows[j];
+                rows[j] = rowToSwap;
             }
-		}
-		
-		int countConflictsForPosition(int row, int col) {
-			int conflicts = 0;
-			
-			for (int i = 0; i < n; i++) {
-				if (i == col) {
-					continue;
-				}
-				
-				int currentRow = board[i];
-				if (currentRow == row || Math.abs(currentRow-row) == Math.abs(i-col)){
-					conflicts++;
-				}
-			}
-			
-			return conflicts;
-		}
-	}
-	
-	public static void solve(Board board) {
-		int moves = 0; 
-		Random random = new Random();
-		
-		ArrayList<Integer> candidates = new ArrayList<Integer>(board.n);
+        }
 
-		while (true) {
-			int maxConflicts = 0;
-			candidates.clear();
-			
-			for (int i = 0; i < board.n; i++) {
-                int conflicts = board.countConflictsForPosition(board.board[i], i);
-                if (conflicts == maxConflicts) {
-                    candidates.add(i);
-                } else if (conflicts > maxConflicts) {
-                    maxConflicts = conflicts;
-                    candidates.clear();
-                    candidates.add(i);
+        int countConflicts(int row, int col) {
+            int count = 0;
+            for (int c = 0; c < rows.length; c++) {
+                if (c == col){
+                	continue;
                 }
-			}
-			
-			if (maxConflicts == 0) {
-				return;
-			}
-			
-			int queenToBeMoved = board.board[random.nextInt(candidates.size())];
-			
-			int minConflicts = board.n;
-            candidates.clear();
-            for (int r = 0; r < board.n; r++) {
-                int conflicts = board.countConflictsForPosition(r, queenToBeMoved);
-                if (conflicts == minConflicts) {
-                    candidates.add(r);
-                } else if (conflicts < minConflicts) {
-                    minConflicts = conflicts;
-                    candidates.clear();
-                    candidates.add(r);
+                int r = rows[c];
+                if (r == row || Math.abs(r-row) == Math.abs(c-col)){
+                	count++;
                 }
             }
-            
-            if (!candidates.isEmpty()) {
-                board.board[queenToBeMoved] =
-                    candidates.get(random.nextInt(candidates.size()));
-            }
+            return count;
+        }
 
-            moves++;
-            if (moves == board.board.length) {
-                board.initializeBoard();
-                moves = 0;
+        void solve() {
+            int moves = 0;
+
+            ArrayList<Integer> candidates = new ArrayList<Integer>();
+
+            while (true) {
+
+                int maxConflicts = 0;
+                candidates.clear();
+                for (int c = 0; c < rows.length; c++) {
+                    int conflicts = countConflicts(rows[c], c);
+                    if (conflicts == maxConflicts) {
+                        candidates.add(c);
+                    } else if (conflicts > maxConflicts) {
+                        maxConflicts = conflicts;
+                        candidates.clear();
+                        candidates.add(c);
+                    }
+                }
+
+                if (maxConflicts == 0) {
+                	this.printBoard();
+                    return;
+                }
+
+                int worstQueenColumn =
+                        candidates.get(random.nextInt(candidates.size()));
+
+                int minConflicts = rows.length;
+                candidates.clear();
+                for (int r = 0; r < rows.length; r++) {
+                    int conflicts = countConflicts(r, worstQueenColumn);
+                    if (conflicts == minConflicts) {
+                        candidates.add(r);
+                    } else if (conflicts < minConflicts) {
+                        minConflicts = conflicts;
+                        candidates.clear();
+                        candidates.add(r);
+                    }
+                }
+
+                if (!candidates.isEmpty()) {
+                    rows[worstQueenColumn] =
+                        candidates.get(random.nextInt(candidates.size()));
+                }
+
+                moves++;
+                if (moves == rows.length * 2) {
+                	fillBoardInitially();
+                    moves = 0;
+                }
             }
-		}
-	}
-	
-    public static void print(PrintStream stream, Board board) {
-        for (int r = 0; r < board.board.length; r++) {
-            for (int c = 0; c < board.board.length; c++) {
-                stream.print(board.board[c] == r ? "Q " : "* ");
+        }
+
+        void printBoard() {
+            for (int r = 0; r < rows.length; r++) {
+                for (int c = 0; c < rows.length; c++) {
+                    System.out.print(rows[c] == r ? " Q " : " * ");
+                }
+                System.out.println();
             }
-            stream.println();
         }
     }
-	
-	public static void main(String[] args) {
-		System.out.println("Enter number of QUEENS: ");
-		
-		Scanner in = new Scanner(System.in);
-		int n = in.nextInt();
-		
-		Board board = new Board(n);
-		board.initializeBoard();
-		long start = System.currentTimeMillis();
-		solve(board);
-		long stop = System.currentTimeMillis();
-		System.out.println("Time " +  (stop-start) + "ms.");
-		print(System.out, board);
 
-	}
-	
+    public static void main(String[] args) {
+    	System.out.println("Enter number of queens: ");
+    	Scanner s = new Scanner(System.in);
+    	int n = s.nextInt();
+    	
+        Board board = new Board(n);
+        board.solve();
+    }
 }

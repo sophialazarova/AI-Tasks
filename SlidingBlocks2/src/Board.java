@@ -18,7 +18,6 @@ public class Board {
         return N;
     }
  
-    //manhattan
     public int getDistance() {
         int distance = 0;
         for (int i = 0; i < N; i++) {
